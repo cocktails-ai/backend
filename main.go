@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/b0noi/go-utils/v2/gcp"
 	"github.com/cocktails-ai/backend/gpt" // Update with the correct import path for your 'gpt' package
 )
 
@@ -28,7 +29,12 @@ func messageHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Convert the drinks list to a prompt for the GPT message.
 	drinksList := strings.Join(payload.Drinks, ", ")
-	inputMessage := fmt.Sprintf("I have the following ingredients: %s. What cocktails can I make with these ingredients?", drinksList)
+	inputMessageTemplate, err := gcp.ReadFile("cocktails-ai", "gpt4-prompt.txt")
+	if err != nil {
+		fmt.Sprintf("Error calling ReadFile function: %v", err)
+		return
+	}
+	inputMessage := fmt.Sprintf(inputMessageTemplate, drinksList)
 
 	response, err := gpt.Message(inputMessage)
 	if err != nil {
@@ -46,3 +52,20 @@ func main() {
 	fmt.Println("Starting server at :8080")
 	http.ListenAndServe(":8080", nil)
 }
+
+// func main() {
+// 	drinksList := strings.Join([]string{"vodka", "lime juice", "gyn"}, ", ")
+// 	inputMessageTemplate, err := gcp.ReadFile("cocktails-ai", "gpt4-prompt.txt")
+// 	if err != nil {
+// 		fmt.Sprintf("Error calling ReadFile function: %v", err)
+// 		return
+// 	}
+// 	inputMessage := fmt.Sprintf(inputMessageTemplate, drinksList)
+
+// 	response, err := gpt.Message(inputMessage)
+// 	if err != nil {
+// 		fmt.Sprintf("Error calling Message function: %v", err)
+// 		return
+// 	}
+// 	fmt.Println(response)
+// }
