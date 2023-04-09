@@ -14,6 +14,10 @@ type RequestPayload struct {
 	Drinks []string `json:"drinks"`
 }
 
+type CocktailResponse struct {
+	Cocktails string `json:"cocktails"`
+}
+
 func messageHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -39,7 +43,14 @@ func messageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response.Choices[0].Message.Content)
+
+	responseJson := CocktailResponse{
+		Cocktails: response.Choices[0].Message.Content,
+	}
+
+	jsonOutput, err := json.MarshalIndent(responseJson, "", "  ")
+
+	json.NewEncoder(w).Encode(string(jsonOutput))
 }
 
 func corsMiddleware(next http.Handler) http.Handler {
@@ -97,5 +108,11 @@ func main() {
 // 		fmt.Sprintf("Error calling Message function: %v", err)
 // 		return
 // 	}
-// 	fmt.Println(response.Choices[0].Message.Content)
+
+// 	responseJson := CocktailResponse{
+// 		Cocktails: response.Choices[0].Message.Content,
+// 	}
+
+// 	jsonOutput, err := json.MarshalIndent(responseJson, "", "  ")
+// 	fmt.Println(string(jsonOutput))
 // }
