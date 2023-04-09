@@ -9,6 +9,7 @@ import (
 	"github.com/b0noi/go-utils/v2/gcp"
 	"github.com/cocktails-ai/backend/barcode"
 	"github.com/cocktails-ai/backend/gpt"
+	"github.com/cocktails-ai/backend/model"
 )
 
 type RequestPayload struct {
@@ -16,7 +17,8 @@ type RequestPayload struct {
 }
 
 type CocktailResponse struct {
-	Cocktails string `json:"cocktails"`
+	Cocktails       string           `json:"cocktails"`
+	CocktailsParsed []model.Cocktail `json:"cocktails_parsed"`
 }
 
 type BarcodeRequestPayload struct {
@@ -80,8 +82,14 @@ func messageHandlerGpt(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
+	rawResponse := response.Choices[0].Message.Content
+	parsedCocktails, err := model.ParseCocktailsMarkdown(rawResponse)
+	if err != nil {
+		parsedCocktails = nil
+	}
 	responseJson := CocktailResponse{
-		Cocktails: response.Choices[0].Message.Content,
+		Cocktails:       rawResponse,
+		CocktailsParsed: parsedCocktails,
 	}
 
 	json.NewEncoder(w).Encode(responseJson)
@@ -153,8 +161,14 @@ func main() {
 // 		return
 // 	}
 
+// 	rawResponse := response.Choices[0].Message.Content
+// 	parsedCocktails, err := model.ParseCocktailsMarkdown(rawResponse)
+// 	if err != nil {
+// 		parsedCocktails = nil
+// 	}
 // 	responseJson := CocktailResponse{
-// 		Cocktails: response.Choices[0].Message.Content,
+// 		Cocktails:       rawResponse,
+// 		CocktailsParsed: parsedCocktails,
 // 	}
 
 // 	jsonOutput, err := json.MarshalIndent(responseJson, "", "  ")
