@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/b0noi/go-utils/v2/gcp"
-	"github.com/cocktails-ai/backend/gpt" // Update with the correct import path for your 'gpt' package
+	"github.com/cocktails-ai/backend/gpt"
 )
 
 type RequestPayload struct {
@@ -92,9 +92,10 @@ func main() {
 // 	inputMessage := fmt.Sprintf(inputMessageTemplate, drinksList)
 
 // 	response, err := gpt.Message(inputMessage)
+
 // 	if err != nil {
 // 		fmt.Sprintf("Error calling Message function: %v", err)
 // 		return
 // 	}
-// 	fmt.Println(response)
+// 	fmt.Println(response.Choices[0].Message.Content)
 // }
