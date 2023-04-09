@@ -65,18 +65,21 @@ func messageHandlerGpt(w http.ResponseWriter, r *http.Request) {
 	var payload RequestPayload
 	err := json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
+		fmt.Printf("Error parsing request body: %v", err)
 		http.Error(w, "Error parsing request body", http.StatusBadRequest)
 		return
 	}
 
 	inputMessageTemplate, err := gcp.ReadFile("cocktails-ai", "gpt4-prompt.txt")
 	if err != nil {
-		fmt.Sprintf("Error calling ReadFile function: %v", err)
+		fmt.Printf("Error calling ReadFile function: %v", err)
+		http.Error(w, fmt.Sprintf("Error calling ReadFile function: %v", err), http.StatusInternalServerError)
 		return
 	}
 	response, err := requestGpt(payload.Drinks, inputMessageTemplate)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error calling Message function: %v", err), http.StatusInternalServerError)
+		fmt.Printf("Error calling requestGpt function: %v", err)
+		http.Error(w, fmt.Sprintf("Error calling requestGpt function: %v", err), http.StatusInternalServerError)
 		return
 	}
 
