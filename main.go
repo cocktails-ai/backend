@@ -48,9 +48,7 @@ func messageHandler(w http.ResponseWriter, r *http.Request) {
 		Cocktails: response.Choices[0].Message.Content,
 	}
 
-	jsonOutput, err := json.MarshalIndent(responseJson, "", "  ")
-
-	json.NewEncoder(w).Encode(string(jsonOutput))
+	json.NewEncoder(w).Encode(responseJson)
 }
 
 func corsMiddleware(next http.Handler) http.Handler {
@@ -85,6 +83,15 @@ func main() {
 	fmt.Println("Starting server at :8080")
 	http.ListenAndServe(":8080", nil)
 }
+
+// func main() {
+// 	productName, err := barcode.FindBarcode("0737628064502")
+// 	if err != nil {
+// 		fmt.Sprintf("Error calling ReadFile function: %v", err)
+// 		return
+// 	}
+// 	fmt.Println(productName)
+// }
 
 // func main() {
 // 	drinksList := strings.Join([]string{"vodka", "lime juice", "gyn"}, ", ")
