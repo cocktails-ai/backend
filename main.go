@@ -39,7 +39,7 @@ func messageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(response.Choices[0].Message.Content)
 }
 
 func corsMiddleware(next http.Handler) http.Handler {
