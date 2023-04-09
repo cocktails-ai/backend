@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/b0noi/go-utils/v2/gcp"
+	"github.com/cocktails-ai/backend/barcode"
 	"github.com/cocktails-ai/backend/gpt"
 )
 
@@ -18,7 +19,42 @@ type CocktailResponse struct {
 	Cocktails string `json:"cocktails"`
 }
 
-func messageHandler(w http.ResponseWriter, r *http.Request) {
+type BarcodeRequestPayload struct {
+	Barcode string `json:"barcode"`
+}
+
+type BarcodeResponse struct {
+	ProductName string `json:"product_name"`
+}
+
+func messageHandlerBarcode(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var payload BarcodeRequestPayload
+	err := json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		http.Error(w, "Error parsing request body", http.StatusBadRequest)
+		return
+	}
+	productName, err := barcode.FindBarcode("0737628064502")
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error calling FindBarcode function: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	responseJson := BarcodeResponse{
+		ProductName: productName,
+	}
+
+	json.NewEncoder(w).Encode(responseJson)
+}
+
+func messageHandlerGpt(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
@@ -78,7 +114,8 @@ func requestGpt(drinks []string, promptTemplate string) (gpt.GptChatCompletionMe
 }
 
 func main() {
-	http.Handle("/cocktails", corsMiddleware(http.HandlerFunc(messageHandler)))
+	http.Handle("/cocktails", corsMiddleware(http.HandlerFunc(messageHandlerGpt)))
+	http.Handle("/barcodes", corsMiddleware(http.HandlerFunc(messageHandlerBarcode)))
 
 	fmt.Println("Starting server at :8080")
 	http.ListenAndServe(":8080", nil)
