@@ -41,7 +41,7 @@ func messageHandlerBarcode(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error parsing request body", http.StatusBadRequest)
 		return
 	}
-	productName, err := barcode.FindBarcode("0737628064502")
+	productName, err := barcode.FindBarcode(payload.Barcode)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error calling FindBarcode function: %v", err), http.StatusInternalServerError)
 		return
