@@ -22,9 +22,17 @@ func ParseCocktailsMarkdown(markdown string) ([]Cocktail, error) {
 			for i < len(lines) && strings.HasPrefix(lines[i], "*") {
 				ingredientLine := strings.TrimSpace(lines[i][1:])
 				ingredientParts := strings.SplitN(ingredientLine, " - ", 2)
-				ingredient := Ingredient{
-					Name: strings.TrimSpace(ingredientParts[0]),
-					Size: strings.TrimSpace(ingredientParts[1]),
+				ingredient := Ingredient{}
+				if len(ingredientParts) < 2 {
+					ingredient = Ingredient{
+						Name: strings.TrimSpace(ingredientParts[0]),
+						Size: "",
+					}
+				} else {
+					ingredient = Ingredient{
+						Name: strings.TrimSpace(ingredientParts[0]),
+						Size: strings.TrimSpace(ingredientParts[1]),
+					}
 				}
 				currentCocktail.Ingredients = append(currentCocktail.Ingredients, ingredient)
 				i++
